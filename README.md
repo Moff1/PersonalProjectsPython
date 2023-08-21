@@ -10,3 +10,5 @@ Need to have PySpark set up to run SparkSQL commands
 Need to have MySQL Server and Workbench working (in the congif file you need to have the variable "secure-file-priv" set to ""
 ##
 Ran this project on Jupyter Notebook
+## 
+Also need to have R Studio downloaded and working
