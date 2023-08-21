@@ -1,0 +1,15 @@
+Goal of the project: 
+
+To create a Track and Field database that is easy to access and easy to read and understand. 
+
+Questions to be answered (College):
+
+- Who is the greatest double in collegiate history?
+
+- What school has the greatest 100m program, 200m program, etc...
+
+- Who is greatest hurdler in collegiate history?
+
+- Which program has the greatest relay program ?
+
+- Who is the greatest collegiate track and field athlete in collegiate history?
