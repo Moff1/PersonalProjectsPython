@@ -1,0 +1,1085 @@
+---
+title: "CollegeTrackAndField"
+output: html_document
+date: "2023-08-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#Answering Questions with  Exploratory Data Analysis
+#Import Data
+```{r}
+library(dplyr)
+```
+$$
+\text{This R file serves as a place where I answered some questions by manipulating the data in the CSV files.}
+$$
+$$
+\text{Who has the best double (male and female) in either double; either the 100/200 or 200/400 etc.?}
+$$
+$$
+\text{Best School for each Event (100m,200m,etc)}
+$$
+$$
+\text{Who is the greatest collegiate overall sprinter/athlete?}
+$$
+$$
+\text{Lets start with the Men...}
+$$
+```{r}
+Mens100m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Mens100m.csv")
+Mens100m
+```
+
+```{r}
+for( i in seq(1,33)){
+  #print(i)
+  Mens100m$Names[i] <- substr(Mens100m$Names[i], 1, nchar(Mens100m$Names[i]) - 2)
+}
+```
+
+
+```{r}
+Mens100m
+```
+
+```{r}
+Mens200m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Men200m.csv")
+Mens200m
+```
+
+
+```{r}
+for( i in seq(1,43)){
+  #print(i)
+  Mens200m$Names[i] <- substr(Mens200m$Names[i], 1, nchar(Mens200m$Names[i]) - 2)
+  
+}
+```
+
+```{r}
+Mens200m
+```
+
+
+```{r}
+Mens100200Double = inner_join(Mens100m,Mens200m, by = "Names")
+Mens100200Double
+```
+
+```{r}
+Mens100200Double = Mens100200Double %>% mutate(sum_column = Times.x + Times.y)
+MensOrderedData100200 = Mens100200Double %>% arrange(sum_column)
+MensOrderedData100200
+```
+
+$$
+\text{Of the people that have completed an all-time double in college, these are the rankings from best double to worst double. SO emperically, Divine Oduduru has the best collegiate double in Mens collegiate history given the 100m/200m events.}
+$$
+```{r}
+Mens400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\OutdoorMens400m.csv")
+Mens400m
+```
+
+```{r}
+for( i in seq(1,45)){
+  #print(i)
+  Mens400m$Names[i] <- substr(Mens400m$Names[i], 1, nchar(Mens400m$Names[i]) - 2)
+  
+}
+Mens400m
+```
+
+```{r}
+Mens200400Double = inner_join(Mens200m,Mens400m, by = "Names")
+Mens200400Double
+```
+
+$$
+\text{As you can see there is no Colllegiate is all time on the 200m/400m double list.}
+$$
+
+```{r}
+Mens60m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Men60m.csv")
+
+MensIndoor200m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Indoor200mMen.csv")
+
+```
+
+```{r}
+for( i in seq(1,58)){
+  #print(i)
+  Mens60m$Names[i] <- substr(Mens60m$Names[i], 1, nchar(Mens60m$Names[i]) - 2)
+  
+}
+Mens60m
+```
+
+
+```{r}
+for( i in seq(1,46)){
+  #print(i)
+  MensIndoor200m$Names[i] <- substr(MensIndoor200m$Names[i], 1, nchar(MensIndoor200m$Names[i]) - 2)
+  
+}
+MensIndoor200m
+```
+
+```{r}
+Mens60100Double = inner_join(Mens60m,Mens100m, by = "Names")
+Mens60100Double
+```
+
+```{r}
+Mens60100Double = Mens60100Double %>% mutate(sum_column = Times.x + Times.y)
+MensOrderData60100 = Mens60100Double %>% arrange(sum_column)
+MensOrderData60100 
+```
+$$
+\text{From the chart above you can see that Christian Coleman of Tennesse has the best 60m/100m double in collegiate history (obviously he is the collegiate record holder in both events.)}
+$$
+
+
+```{r}
+Mens60200Double = inner_join(Mens60m,MensIndoor200m, by = "Names")
+Mens60200Double
+```
+
+
+
+
+```{r}
+Mens60200Double = Mens60200Double %>% mutate(sum_column = Times.x + Times.y)
+MensOrderData60200 = Mens60200Double %>% arrange(sum_column)
+MensOrderData60200
+```
+$$
+\text{Even though Christian Coleman is the 60m record holder, Elijah Hall of Houston has the best double considering the 60m/Indoor200m events.}
+$$
+
+
+```{r}
+Mens200200Double = inner_join(Mens200m,MensIndoor200m, by = "Names")
+Mens200200Double
+```
+
+```{r}
+Mens200200Double= Mens200200Double %>% mutate(sum_column = Times.x + Times.y)
+MensOrderData200200 = Mens200200Double %>% arrange(sum_column)
+MensOrderData200200 
+```
+$$
+\text{It looks like Divine Oruduru is the king of the 200m sprints, both indoors and outdoors.}
+$$
+
+
+```{r}
+IndoorMens400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\IndoorMens400m.csv")
+```
+
+```{r}
+for(i in seq(1,39)){
+  #print(i)
+  IndoorMens400m$Names[i] <- substr(IndoorMens400m$Names[i], 1, nchar(IndoorMens400m$Names[i]) - 2)
+  
+}
+IndoorMens400m
+```
+
+
+#Mens200m-400m
+```{r}
+MensIndoor200400Double = inner_join(IndoorMens400m,MensIndoor200m, by = "Names")
+MensIndoor200400Double
+```
+$$
+\text{It looks Jacory Patterson of Florida is the only man to make both all-time lists in the indoor 200m and indoor 400m. Very admirable!}
+$$
+```{r}
+AllCombo <- MensOrderData200200  %>%inner_join(MensOrderData60200, by = "Names") %>%inner_join(MensOrderData60100 , by = "Names") %>% inner_join(MensOrderedData100200,by="Names")
+AllCombo
+
+
+```
+```{r}
+TheFinalAnswer = AllCombo %>% mutate(sum_column = sum_column.x + sum_column.y+ sum_column.x.x + sum_column.y.y)
+TheFinalAnswer
+```
+
+```{r}
+TheFinalAnswer %>% arrange(sum_column)
+```
+```{r}
+FinalSum <- TheFinalAnswer[,c("Names","sum_column")]
+FinalSum
+```
+
+
+$$
+\text{So whos the greatest male collegiate sprinter in Collegiate history? In my mind there are no right answers; however it you have been paying attention there is only one sprinter who has topped the alltime list a whopping four times: its Christian Coleman of Tennesse. However it is shocking to find that empirically Divine Oduduru is the best sprinter of all time.}
+$$
+#Hurdles
+```{r}
+Mens60mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Mens60mHurdles.csv")
+Mens60mHurdles
+```
+
+
+
+```{r}
+Mens110mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Mens110mHurdles.csv")
+Mens110mHurdles
+```
+
+```{r}
+for( i in seq(1,nrow(Mens110mHurdles))){
+  #print(i)
+  Mens110mHurdles$Names[i] <- substr(Mens110mHurdles$Names[i], 1, nchar(Mens110mHurdles$Names[i]) - 2)
+  
+}
+Mens110mHurdles
+```
+
+
+```{r}
+for( i in seq(1,nrow(Mens60mHurdles))){
+  #print(i)
+  Mens60mHurdles$Names[i] <- substr(Mens60mHurdles$Names[i], 1, nchar(Mens60mHurdles$Names[i]) - 2)
+  
+}
+Mens60mHurdles
+```
+
+
+
+```{r}
+MensShortHurdle = inner_join(Mens60mHurdles,Mens110mHurdles, by = "Names")
+MensShortHurdle
+```
+
+```{r}
+MensShortHurdleDouble = MensShortHurdle %>% mutate(sum_column = Times.x + Times.y)
+MensShortHurdleDouble = MensShortHurdleDouble %>% arrange(sum_column)
+MensShortHurdleDouble
+```
+```{r}
+Mens400mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Mens400mHurdles.csv")
+Mens400mHurdles
+```
+
+```{r}
+for( i in seq(1,nrow(Mens400mHurdles))){
+  #print(i)
+  Mens400mHurdles$Names[i] <- substr(Mens400mHurdles$Names[i], 1, nchar(Mens400mHurdles$Names[i]) - 2)
+  
+}
+Mens400mHurdles
+```
+
+```{r}
+Mens100400Hurdle = inner_join(Mens400mHurdles,Mens110mHurdles, by = "Names")
+Mens100400Hurdle
+
+Mens100400HurdleDouble = Mens100400Hurdle %>% mutate(sum_column = Times.x + Times.y)
+Mens100400HurdleDouble = Mens100400HurdleDouble %>% arrange(sum_column)
+Mens100400HurdleDouble
+```
+$$
+\text{No one has done the 110m/400mh double.}
+$$
+```{r}
+Mens60400Hurdle = inner_join(Mens400mHurdles,Mens60mHurdles, by = "Names")
+Mens60400Hurdle
+
+Mens60400HurdleDouble = Mens60400Hurdle %>% mutate(sum_column = Times.x + Times.y)
+Mens60400HurdleDouble = Mens60400HurdleDouble %>% arrange(sum_column)
+Mens60400HurdleDouble
+```
+$$
+\text{Miracously, one person has actually done the 60mh/400mh double. Shoutout to Caleb Dean.}
+$$
+$$
+\text{Because of the fact that only one person has done the 60mh/400mh double I have decided to focus on the Short Hurdle Double to see who the greatest hurdler is (its Grant Holloway fyi)}
+$$
+```{r}
+FinalAnswer <- MensShortHurdleDouble[,c("Names","sum_column")]
+FinalAnswer
+```
+$$
+\text{Grant Holloway tops the charts as the greatest hurdler of all Time.}
+$$
+
+#Special_Events
+
+```{r}
+MensDeca = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\MensDeca.csv",stringsAsFactors = FALSE)
+MensDeca
+```
+
+```{r}
+MensDeca$Scores <- gsub(",", "", MensDeca$Scores)
+
+```
+
+
+```{r}
+MensDeca$Scores <- as.numeric(MensDeca$Scores)
+MensDeca
+```
+
+```{r}
+MensHep = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\MensHep.csv")
+MensHep
+```
+
+```{r}
+MensHep$Scores <- gsub(",", "", MensHep$Scores)
+```
+
+```{r}
+MensHep$Scores <- as.numeric(MensHep$Scores)
+MensHep
+```
+
+
+```{r}
+for( i in seq(1,nrow(MensDeca))){
+   #print(i)
+   MensDeca$Names[i] <- substr(MensDeca$Names[i], 1, nchar(MensDeca$Names[i]) - 2)
+ }
+```
+
+```{r}
+for( i in seq(1,nrow(MensHep))){
+   #print(i)
+   MensHep$Names[i] <- substr(MensHep$Names[i], 1, nchar(MensHep$Names[i]) - 2)
+   
+ }
+```
+
+
+```{r}
+MensHep
+```
+
+```{r}
+AthleteDouble = inner_join(MensHep,MensDeca, by = "Names")
+AthleteDouble
+```
+
+
+```{r}
+AthleteDouble = AthleteDouble %>% mutate(sum_column = Scores.x + Scores.y)
+AthleteDouble = AthleteDouble %>% arrange(desc(sum_column))
+AthleteDouble
+```
+
+$$
+\text{As you can see from the chart I created that Kyle Garland is the best 'athlete' in collegiate history.}
+$$
+
+
+#WOMENS DATA
+$$
+\text{And now for an analysis of the womens data...}
+$$
+
+
+```{r}
+Womens100m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Womens100m.csv")
+Womens100m
+```
+
+
+```{r}
+for( i in seq(1,nrow(Womens100m))){
+  #print(i)
+  Womens100m$Names[i] <- substr(Womens100m$Names[i], 1, nchar(Womens100m$Names[i]) - 2)
+  
+}
+```
+
+
+```{r}
+Womens100m
+```
+
+
+
+```{r}
+Womens200m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Womens200m.csv")
+Womens200m
+```
+
+```{r}
+for( i in seq(1,nrow(Womens200m))){
+  #print(i)
+  Womens200m$Names[i] <- substr(Womens200m$Names[i], 1, nchar(Womens200m$Names[i]) - 2)
+  
+}
+```
+
+
+```{r}
+Womens100200Double = inner_join(Womens100m,Womens200m, by = "Names")
+Womens100200Double
+```
+
+
+```{r}
+Womens100200Double = Womens100200Double %>% mutate(sum_column = Times.x + Times.y)
+WomensOrderedData100200 = Womens100200Double %>% arrange(sum_column)
+WomensOrderedData100200
+```
+
+$$
+\text{Of the people that have completed an all-time double in college, these are the rankings from best double to worst double for 100m/200m.Abby Steiner from Kentucky tops the chart as having the fastest double}
+$$
+
+```{r}
+Womens400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\OutdoorWomens400m.csv")
+Womens400m
+```
+
+
+```{r}
+for( i in seq(1,nrow(Womens400m))){
+  #print(i)
+  Womens400m$Names[i] <- substr(Womens400m$Names[i], 1, nchar(Womens400m$Names[i]) - 2)
+  
+}
+Womens400m
+```
+
+```{r}
+Womens200400Double = inner_join(Womens200m,Womens400m, by = "Names")
+Womens200400Double
+```
+
+
+
+
+$$
+\text{Lynna IRBY is the only one on the alltime list in the Womens 200/400 double.}
+$$
+
+```{r}
+Womens400mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Womens400mHurdles.csv")
+Womens400mHurdles
+```
+```{r}
+for( i in seq(1,nrow(Womens400mHurdles))){
+  #print(i)
+  Womens400mHurdles$Names[i] <- substr(Womens400mHurdles$Names[i], 1, nchar(Womens400mHurdles$Names[i]) - 2)
+  
+}
+Womens400mHurdles
+```
+
+
+```{r}
+Womens400mh400Double = inner_join(Womens400mHurdles,Womens400m, by = "Names")
+Womens400mh400Double
+```
+$$
+\text{Shoutout to Syd and Britton Wilson.}
+$$
+
+#INDOOR DATA
+
+```{r}
+Womens60m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Womens60m.csv")
+WomensIndoor200m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\IndoorWomens200m.csv")
+```
+
+```{r}
+for( i in seq(1,58)){
+  #print(i)
+  Womens60m$Names[i] <- substr(Womens60m$Names[i], 1, nchar(Womens60m$Names[i]) - 2)
+  
+}
+Womens60m
+```
+
+```{r}
+for( i in seq(1,57)){
+  #print(i)
+  WomensIndoor200m$Names[i] <- substr(WomensIndoor200m$Names[i], 1, nchar(WomensIndoor200m$Names[i]) - 2)
+  
+}
+
+WomensIndoor200m
+```
+
+
+```{r}
+WomensIndoor400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\IndoorWomens400m.csv")
+```
+
+
+```{r}
+for( i in seq(1,39)){
+  #print(i)
+  WomensIndoor400m$Names[i] <- substr(WomensIndoor400m$Names[i], 1, nchar(WomensIndoor400m$Names[i]) - 2)
+  
+}
+
+WomensIndoor400m
+```
+
+```{r}
+Womens60100= inner_join(Womens60m,Womens100m, by = "Names")
+Womens60100
+```
+
+```{r}
+Womens60100Double = Womens60100 %>% mutate(sum_column = Times.x + Times.y)
+Womens60100Double = Womens60100Double %>% arrange(sum_column)
+Womens60100Double
+```
+$$
+\text{Julien Alfred tops the 60/100 double which makes sense. Technically she is the collegiate record holder in both events.}
+$$
+
+```{r}
+Womens60200= inner_join(Womens60m,WomensIndoor200m, by = "Names")
+Womens60200
+```
+
+```{r}
+Womens60200Double = Womens60200 %>% mutate(sum_column = Times.x + Times.y)
+Womens60200Double = Womens60200Double %>% arrange(sum_column)
+Womens60200Double
+```
+
+$$
+\text{Julien Alfred tops the 60/200 double which makes sense. Technically she is the collegiate record holder in both events...again}
+$$
+```{r}
+Womens200m200m = inner_join(Womens200m,WomensIndoor200m, by = "Names")
+Womens200m200m
+```
+
+```{r}
+Womens200200Double = Womens200m200m %>% mutate(sum_column = Times.x + Times.y)
+Womens200200Double = Womens200200Double %>% arrange(sum_column)
+Womens200200Double
+```
+$$
+\text{Abby is official the queen of the 200m as she tops this list as the fastest double. }
+$$
+```{r}
+Womens60m400m = inner_join(Womens60m,WomensIndoor400m, by = "Names")
+Womens60m400m
+```
+$$
+\text{So this is the result of two different people with the last name Wilson. No one athlete has completed this double officially. So the entries with two different schools do not count towards my database. }
+$$
+
+
+
+
+```{r}
+WomensIndoor200m400m = inner_join(WomensIndoor200m,WomensIndoor400m, by = "Names")
+WomensIndoor200m400m 
+```
+
+```{r}
+WomensIndoor200m400mDouble = WomensIndoor200m400m %>% mutate(sum_column = Times.x + Times.y)
+WomensIndoor200m400mDouble = WomensIndoor200m400mDouble %>% arrange(sum_column)
+WomensIndoor200m400mDouble
+```
+
+
+
+$$
+\text{The Texan Adeleke leds the top of this list officially. }
+$$
+```{r}
+AllComboWomens <- Womens200200Double  %>%inner_join(Womens60200Double, by = "Names") %>%inner_join(Womens60100Double , by = "Names") %>% inner_join(WomensOrderedData100200,by="Names")
+
+AllComboWomens
+
+
+```
+
+
+```{r}
+TheFinalAnswerWomen = AllComboWomens %>% mutate(sum_column = sum_column.x + sum_column.y+ sum_column.x.x + sum_column.y.y)
+TheFinalAnswerWomen
+```
+
+```{r}
+TheFinalAnswerWomen %>% arrange(desc(sum_column))
+```
+
+```{r}
+FinalSumWomen <- TheFinalAnswerWomen[,c("Names","sum_column")]
+FinalSumWomen
+```
+$$
+\text{Julien Alfred is the queen of collegiate sprints. SHe had the greatest single day indoor sprint double, which rightly justifies her historic season; she is the greatest female collegiate spinter in history.}
+$$
+
+#Hurdles
+```{r}
+Womens60mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Womens60mHurdles.csv")
+Womens60mHurdles
+
+```
+
+```{r}
+Womens100mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\Women100mHurdles.csv")
+Womens100mHurdles
+```
+
+```{r}
+for( i in seq(1,nrow(Womens100mHurdles))){
+  #print(i)
+  Womens100mHurdles$Names[i] <- substr(Womens100mHurdles$Names[i], 1, nchar(Womens100mHurdles$Names[i]) - 2)
+  
+}
+```
+
+
+```{r}
+Womens60mHurdles$Names <- substr(Womens60mHurdles$Names, 3, nchar(Womens60mHurdles$Names))
+```
+
+```{r}
+Womens60mHurdles
+```
+
+```{r}
+Womens60mHurdles$Names <- gsub("^\\)", "", Womens60mHurdles$Names)
+```
+
+```{r}
+Womens60mHurdles
+```
+
+```{r}
+Womens60mHurdles$Names <- gsub("^\\d{2}", "", Womens60mHurdles$Names)
+```
+
+
+```{r}
+Womens60mHurdles$Names <- gsub("^[^A-Z]", "", Womens60mHurdles$Names)
+```
+
+```{r}
+Womens60mHurdles
+```
+
+```{r}
+Womens60mHurdles$Names <- gsub("^\\)", "", Womens60mHurdles$Names)
+Womens60mHurdles
+```
+
+```{r}
+for( i in seq(1,nrow(Womens60mHurdles))){
+  #print(i)
+  Womens60mHurdles$Names[i] <- substr(Womens60mHurdles$Names[i], 1, nchar(Womens60mHurdles$Names[i]) - 2)
+  
+}
+```
+
+
+```{r}
+WomensIndoor60100Hurdles = inner_join(Womens60mHurdles,Womens100mHurdles, by = "Names")
+WomensIndoor60100Hurdles 
+
+```
+
+```{r}
+WomensIndoor60100HurdlesDouble = WomensIndoor60100Hurdles  %>% mutate(sum_column = Times.x + Times.y)
+WomensIndoor60100HurdlesDouble = WomensIndoor60100HurdlesDouble %>% arrange(sum_column)
+WomensIndoor60100HurdlesDouble
+```
+$$
+\text{Masai Russell is the queen of ths short hurdle double posting the fastest double time.}
+$$
+#Special Events
+```{r}
+WomensHep = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\WomensHep.csv")
+WomensHep
+```
+
+```{r}
+WomenPent = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\WomensPent.csv")
+WomenPent
+```
+
+```{r}
+WomensHep$Scores <- gsub(",", "", WomensHep$Scores)
+WomenPent$Scores <- gsub(",", "", WomenPent$Scores)
+```
+
+```{r}
+WomensHep$Scores <- as.numeric(WomensHep$Scores)
+WomenPent$Scores <- as.numeric(WomenPent$Scores)
+```
+
+
+```{r}
+for( i in seq(1,nrow(WomensHep))){
+  #print(i)
+  WomensHep$Names[i] <- substr(WomensHep$Names[i], 1, nchar(WomensHep$Names[i]) - 2)
+  
+}
+
+for( i in seq(1,nrow(WomenPent))){
+  #print(i)
+  WomenPent$Names[i] <- substr(WomenPent$Names[i], 1, nchar(WomenPent$Names[i]) - 2)
+  
+}
+```
+
+```{r}
+WomenAthleteDouble = inner_join(WomenPent,WomensHep, by = "Names")
+WomenAthleteDouble
+```
+
+```{r}
+WomenAthleteDouble = WomenAthleteDouble %>% mutate(sum_column = Scores.x + Scores.y)
+WomenAthleteDouble = WomenAthleteDouble %>% arrange(desc(sum_column))
+WomenAthleteDouble
+```
+
+$$
+\text{The greatest collegiate 'athlete' is Tyra Gittens emperically.}
+$$
+
+
+$$
+\text{AND THAT IS THE END OF THE COLLEGE TRACK AND FIELD DATA ANALYSIS:}
+$$
+
+#Notable Finds
+```{r}
+NotableFindsDataFrameMen <- data.frame(
+  Name = c("Divine Oduduru","Christian Coleman","Elijah Hall","Divine Oduduru","Divine Oduduru","Grant Holloway","Kyle Garland"),
+  
+  Achievement = c("100/200 Outdoor","60m/100m","60m/Indoor 200","Outdoor 200/Indoor 200","60m/100m/Indoor200m/Outdoor 200mm","60mh/110mh","Multi-Events"),
+  
+  Score = c(29.59,16.27,26.54,39.81,112.38,20.33,15359),
+  
+  School = c("Texas Tech","Tennessee","Houston","Texas Tech","Texas Tech","Florida","Georgia")
+  
+  
+  
+)
+print(NotableFindsDataFrameMen)
+```
+
+```{r}
+NotableFindsDataFrameWomen <- data.frame(
+  Name = c("Abby Steiner","Julien Alfred","Julien Alfred","Abby Steiner","Julien Alfred","Masai Russell","Tyra Gittens"),
+  
+  Achievement = c("100m/200m","60m/100m","60m/200m","Indoor 200m/Outdoor 200m","60m/100m/Indoor 200m/Outdoor 200m","60mh/100mh","Multi-Events"),
+  
+  Score = c(32.70,17.75,28.95,43.89,123.34,7.75,11164),
+  
+  School = c("Kentucky","Texas","Texas","Kentucky","Texas","Kentucky","Texas A&M")
+  
+  
+  
+)
+print(NotableFindsDataFrameWomen)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

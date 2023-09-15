@@ -1,0 +1,509 @@
+---
+title: "ProTrackAndFieldAnalysis"
+output: html_document
+date: "2023-09-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Package Importing
+```{r}
+library(dplyr)
+library(countrycode)
+library(ggplot2)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(forecast)
+
+```
+#Prepping Libraries for Use
+```{r}
+countries <- countrycode::codelist
+```
+
+
+```{r}
+countrycode('Albania', origin = 'country.name', destination = 'iso3c')
+```
+```{r}
+CleanedCountry <- countries[,c("country.name.en","ioc","iso3c")]
+View(CleanedCountry)
+```
+
+```{r}
+filtered_countries <- CleanedCountry[!(is.na(CleanedCountry$ioc) & is.na(CleanedCountry$iso3c)), ]
+
+# View the resulting dataframe
+print(filtered_countries)
+```
+
+#GlobalVariables
+
+#Data Importing 
+```{r}
+ProMens100m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens100m.csv")
+ProMens100m
+```
+```{r}
+ProMens200m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens200m.csv")
+ProMens300m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens300m.csv")
+ProMens400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens400m.csv")
+ProMensIndoor400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProIndoorMens400m.csv")
+ProMens60m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens60m.csv")
+ProMens60mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens60mHurdles.csv")
+ProMens800m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens800m.csv")
+ProMens400mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens400mHurdles.csv")
+ProMens110mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens110mHurdles.csv")
+ProMens4x100m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens4x100m.csv")
+ProMens4x400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMens4x400m.csv")
+ProLJ = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProMensLJ.csv")
+
+
+#Women
+ProWomensIndoor400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProIndoorWomens400m.csv")
+ProWomens400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens400m.csv")
+ProWomens60mHurdles =read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens60mHurdles.csv")
+ProWomensPent = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomensPent.csv")
+ProWomensLJ = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomensLJ.csv")
+ProWomens800m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens800m.csv")
+ProWomens4x400m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens4x400m.csv")
+ProWomens4x100m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens4x100m.csv")
+ProWomens400mHurdles = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens400mHurdles.csv")
+ProWomens300m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens300m.csv")
+ProWomens200m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens200m.csv")
+ProWomens100m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens100m.csv")
+ProWomens60m = read.csv("C:\\ProgramData\\MySQL\\MySQL Server 8.0\\Uploads\\ProWomens60m.csv")
+```
+
+
+
+
+```{r}
+country_counts <- ProMens100m %>%
+  group_by(COUNTRY) %>%
+  summarise(count = n())
+country_counts
+```
+```{r}
+# Assuming your dataframe is named df and the column is named 'ColumnName'
+CleanedProMens100m <- ProMens100m[grep("^[A-Z]{2}", ProMens100m$COUNTRY), ]
+print(CleanedProMens100m)
+```
+```{r}
+country_counts <- CleanedProMens100m %>%
+  group_by(COUNTRY) %>%
+  summarise(count = n()) %>% arrange(desc(count))
+country_counts
+```
+```{r}
+Athlete_counts <- CleanedProMens100m %>%
+  group_by(ATHLETE) %>%
+  summarise(count = n()) %>% arrange(desc(count))
+Athlete_counts
+```
+
+```{r}
+CleanedProMens100m$TIMES <- gsub("\\.", "",CleanedProMens100m$TIMES)
+CleanedProMens100m$TIMES <- as.numeric(CleanedProMens100m$TIMES) 
+```
+
+
+```{r}
+CountryAverages <- CleanedProMens100m %>%
+  select(COUNTRY, TIMES) %>%
+  group_by(COUNTRY) %>%
+  summarise(Avg_Value = mean(TIMES, na.rm = TRUE) / 100, count = n()) %>%
+  filter(count > 50) %>%
+  arrange(Avg_Value)
+CountryAverages
+```
+```{r}
+df <- data.frame(CountryAverages)
+df
+```
+```{r}
+merged_df <- merge(df, filtered_countries, by.x = "COUNTRY", by.y = "iso3c")
+merged_df
+```
+```{r}
+merged_df_Cleaned = merged_df %>% select(Avg_Value,country.name.en) %>% arrange(Avg_Value)
+
+merged_df_Cleaned
+```
+
+
+```{r}
+df <- data.frame(country_counts)
+
+# View the dataframe
+print(df)
+```
+
+
+```{r}
+
+
+# Merge dataframes where 'ID1' in df1 matches 'ID2' in df2
+merged_df <- merge(df, filtered_countries, by.x = "COUNTRY", by.y = "iso3c")
+
+# View the merged dataframe
+print(merged_df)
+
+```
+
+```{r}
+subset_df <- subset(merged_df, select = c(count,country.name.en))
+subset_df
+```
+
+
+#Test
+```{r}
+library(ggplot2)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+```
+
+
+#Global Variable
+```{r}
+world <- ne_countries(scale = "medium", returnclass = "sf")
+```
+
+```{r}
+subset_df
+```
+
+
+
+```{r}
+merged_data <- merge(world, subset_df, by.x = "name", by.y = "country.name.en", all.x = TRUE)
+```
+
+
+```{r}
+merged_data
+```
+
+
+
+```{r}
+ggplot(merged_data, aes(fill = count)) +
+  geom_sf() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void() +
+  labs(title = "World Heatmap Based Times Country Appears in the Database (100m Times)", fill = "count")
+
+```
+
+
+
+```{r}
+dataprep <- function(TimesDataset,filtered_countries,world){
+  CleanedTimesDataset <- TimesDataset[grep("^[A-Z]{2}", TimesDataset$COUNTRY), ]
+  
+  country_counts <- CleanedTimesDataset %>%
+  group_by(COUNTRY) %>%
+  summarise(count = n())
+  country_counts
+
+  df <- data.frame(country_counts)
+  
+  merged_df <- merge(df, filtered_countries, by.x = "COUNTRY", by.y = "iso3c")
+  
+  subset_df <- subset(merged_df, select = c(count,country.name.en))
+  subset_df
+
+  merged_data <- merge(world, subset_df, by.x = "name", by.y = "country.name.en", all.x = TRUE)
+  
+  return(merged_data)
+  
+}
+```
+
+
+
+#PREDICTIONS
+```{r}
+ProMens100m
+```
+
+```{r}
+ProMens100m$TIMES <- gsub("\\.", "", ProMens100m$TIMES)
+ProMens100m$TIMES <- as.numeric(ProMens100m$TIMES)/100
+ProMens100m$DATEOFRUN <- gsub("\\.", "", ProMens100m$DATEOFRUN)
+ProMens100m <- ProMens100m[grepl("^[0-9]", ProMens100m$DATEOFRUN), ]
+ProMens100m$DATEOFRUN <- substr(ProMens100m$DATEOFRUN, 5, nchar(ProMens100m$DATEOFRUN))
+ProMens100m$DATEOFRUN <- as.numeric(ProMens100m$DATEOFRUN)
+```
+
+
+```{r}
+PredictionData = ProMens100m %>% select(TIMES,DATEOFRUN) %>% group_by(DATEOFRUN) %>% summarise(Avg_Value = min(TIMES,na.rm = TRUE)) %>% arrange(Avg_Value)
+PredictionData = na.omit(PredictionData)
+PredictionData = as.data.frame(PredictionData)
+```
+
+
+```{r}
+ggplot(PredictionData, aes(x = DATEOFRUN, y = Avg_Value)) +
+  geom_line() +
+  labs(title = "Historical Data", x = "Year", y = "Value")
+```
+
+```{r}
+predicttimes <- function(Time,Year,yeartopredict){
+# Fit a linear regression model
+  model <- lm(Time ~ Year, data = PredictionData)
+
+# Predict the world record time for a future year
+  future_year <- yeartopredict
+  predicted_time <- predict(model, newdata = data.frame(Year = future_year))
+
+# View the predicted time
+  return(predicted_time)
+}
+```
+
+
+```{r}
+predicttimes(PredictionData$Avg_Value,PredictionData$DATEOFRUN,2045)
+```
+
+
+```{r}
+Mens200m = dataprep(ProMens200m,filtered_countries,world)
+```
+
+
+```{r}
+ggplot(Mens200m, aes(fill = count)) +
+  geom_sf() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void() +
+  labs(title = "World Heatmap Based Times Country Appears in the Database ( Mens 200m Times)", fill = "count")
+```
+
+#HelperFunctions
+```{r}
+PredictionsForEvent <- function(dataframe){
+  dataframe$TIMES <- gsub("\\.", "", dataframe$TIMES)
+  dataframe$TIMES <- as.numeric(dataframe$TIMES)/100
+  dataframe$DATEOFRUN <- gsub("\\.", "", dataframe$DATEOFRUN)
+  dataframe <- dataframe[grepl("^[0-9]", dataframe$DATEOFRUN), ]
+  dataframe$DATEOFRUN <- substr(dataframe$DATEOFRUN, 5, nchar(dataframe$DATEOFRUN))
+  dataframe$DATEOFRUN <- as.numeric(dataframe$DATEOFRUN)
+
+
+  PredictionData = dataframe %>% select(TIMES,DATEOFRUN) %>% group_by(DATEOFRUN) %>% summarise(Avg_Value = min(TIMES,na.rm = TRUE)) %>% arrange(Avg_Value)
+  PredictionData = na.omit(PredictionData)
+  PredictionData = as.data.frame(PredictionData)
+  PredictionData <- PredictionData[grepl("^[12]", PredictionData$DATEOFRUN), ]
+
+return(PredictionData)
+}
+```
+
+
+```{r}
+Datafor200m = PredictionsForEvent(ProMens200m)
+```
+```{r}
+Datafor200m
+```
+
+  
+
+
+```{r}
+ggplot(Datafor200m, aes(x = DATEOFRUN, y = Avg_Value)) +
+  geom_line() +
+  labs(title = "Historical Data", x = "Year", y = "Value")
+```
+
+#300m
+```{r}
+Merge300mData = dataprep(ProMens300m,filtered_countries,world)
+```
+
+```{r}
+ggplot(Merge300mData, aes(fill = count)) +
+  geom_sf() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void() +
+  labs(title = "World Heatmap Based Times Country Appears in the Database (100m Times)", fill = "count")
+```
+
+```{r}
+Datafor300m = PredictionsForEvent(ProMens300m)
+```
+
+```{r}
+ggplot(Datafor300m, aes(x = DATEOFRUN, y = Avg_Value)) +
+  geom_line() +
+  labs(title = "Historical Data", x = "Year", y = "Value")
+```
+```{r}
+predicttimes(Datafor300m$Avg_Value,Datafor300m$DATEOFRUN,2045)
+```
+#400m
+```{r}
+Merge400mData = dataprep(ProMens400m,filtered_countries,world)
+```
+
+```{r}
+ggplot(Merge400mData, aes(fill = count)) +
+  geom_sf() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void() +
+  labs(title = "World Heatmap Based Times Country Appears in the Database (100m Times)", fill = "count")
+```
+
+```{r}
+Datafor400m = PredictionsForEvent(ProMens400m)
+```
+
+```{r}
+ggplot(Datafor400m, aes(x = DATEOFRUN, y = Avg_Value)) +
+  geom_line() +
+  labs(title = "Historical Data", x = "Year", y = "Value")
+```
+
+##Account for INF Values
+```{r}
+Datafor400m <- Datafor400m %>%
+  filter(is.finite(Avg_Value))
+```
+
+
+```{r}
+predicttimes(Datafor400m$Avg_Value,Datafor400m$DATEOFRUN,2037)
+```
+#Womens
+```{r}
+ProWomens100m
+```
+
+```{r}
+WomensMerge100mData = dataprep(ProWomens100m,filtered_countries,world)
+```
+
+```{r}
+ggplot(WomensMerge100mData, aes(fill = count)) +
+  geom_sf() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void() +
+  labs(title = "World Heatmap Based Times Country Appears in the Database (100m Times)", fill = "count")
+```
+
+```{r}
+Datafor100mWomens = PredictionsForEvent(ProWomens100m)
+```
+
+```{r}
+ggplot(Datafor100mWomens, aes(x = DATEOFRUN, y = Avg_Value)) +
+  geom_line() +
+  labs(title = "Historical Data", x = "Year", y = "Value")
+```
+
+```{r}
+predicttimes(Datafor100mWomens$Avg_Value,Datafor100mWomens$DATEOFRUN,2045)
+```
+#Womens200m
+```{r}
+ProWomens200m
+```
+
+```{r}
+WomensMerge200mData = dataprep(ProWomens200m,filtered_countries,world)
+```
+
+```{r}
+ggplot(WomensMerge200mData, aes(fill = count)) +
+  geom_sf() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void() +
+  labs(title = "World Heatmap Based Times Country Appears in the Database (100m Times)", fill = "count")
+```
+
+```{r}
+Datafor200mWomens = PredictionsForEvent(ProWomens200m)
+```
+
+```{r}
+ggplot(Datafor200mWomens, aes(x = DATEOFRUN, y = Avg_Value)) +
+  geom_line() +
+  labs(title = "Historical Data", x = "Year", y = "Value")
+```
+
+```{r}
+predicttimes(Datafor200mWomens$Avg_Value,Datafor200mWomens$DATEOFRUN,2045)
+```
+#300
+```{r}
+ProWomens300m
+```
+
+
+```{r}
+WomensMerge300mData = dataprep(ProWomens300m,filtered_countries,world)
+```
+
+```{r}
+ggplot(WomensMerge300mData, aes(fill = count)) +
+  geom_sf() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void() +
+  labs(title = "World Heatmap Based Times Country Appears in the Database (100m Times)", fill = "count")
+```
+
+```{r}
+Datafor300mWomens = PredictionsForEvent(ProWomens300m)
+```
+
+```{r}
+ggplot(Datafor300mWomens, aes(x = DATEOFRUN, y = Avg_Value)) +
+  geom_line() +
+  labs(title = "Historical Data", x = "Year", y = "Value")
+```
+
+```{r}
+predicttimes(Datafor300mWomens$Avg_Value,Datafor300mWomens$DATEOFRUN,2045)
+```
+
+
+#400
+```{r}
+ProWomens400m
+```
+
+
+```{r}
+WomensMerge400mData = dataprep(ProWomens400m,filtered_countries,world)
+```
+
+```{r}
+ggplot(WomensMerge400mData, aes(fill = count)) +
+  geom_sf() +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void() +
+  labs(title = "World Heatmap Based Times Country Appears in the Database (100m Times)", fill = "count")
+```
+
+```{r}
+Datafor400mWomens = PredictionsForEvent(ProWomens400m)
+```
+
+```{r}
+ggplot(Datafor400mWomens, aes(x = DATEOFRUN, y = Avg_Value)) +
+  geom_line() +
+  labs(title = "Historical Data", x = "Year", y = "Value")
+```
+
+```{r}
+predicttimes(Datafor400mWomens$Avg_Value,Datafor400mWomens$DATEOFRUN,2045)
+```
