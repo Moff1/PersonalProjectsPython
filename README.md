@@ -10,3 +10,4 @@ This Python project is a quick lab from one of my trainings where the goal is to
  - xgboost
  - sklearn
 
+If you have any questions please email me at jamoffatt.411@gmail.com
