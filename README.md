@@ -18,5 +18,11 @@ Packages for this project to run:
 - seaborn
 - matplotlib
 - plotly
+- pandas
+- numpy
+- requests
+- os
+- pandas_datareader
+- datetime
 
   Any issues email me at jamoffatt.411@gmail.com
