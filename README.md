@@ -6,11 +6,7 @@ This project is all about data analysis and visualization of some stock data, th
 Packages for this project to run:
 
 
--pandas
--numpy
--requests
--os
--pandas_datareader
+
 - datetime
 - tiingo
 - pandas_ta
