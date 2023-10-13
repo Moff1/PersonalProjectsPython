@@ -4,27 +4,33 @@
 
 ### Import Data
 
-### EDA 
-Notice the use of the lambda function to extract the year
+### EDA
 
-### NLP Classification
+### Including for Inflation
+I took it upon myself to add the inflation (based on 2022) to make the data and model more accurate
 
-### PipeLine - MultiNomialNB()
-This pipeline has three components:
- - CountVectorizer(): Convert a collection of text documents to a matrix of token counts
- - TfidfTransformer(): The goal of using tf-idf instead of the raw frequencies of occurrence of a token in a given document is to scale down the impact of tokens that occur very frequently
-- MultiNomialNB(): the model in question
+### Models and Data Pre-Processing 
+I stated that if a movie is successful if the revenue exceeds the budget of the movie
 
-### Pipelie - Logistic Regression
-This pipeline has three components:
- - CountVectorizer(): Convert a collection of text documents to a matrix of token counts
- - TfidfTransformer(): The goal of using tf-idf instead of the raw frequencies of occurrence of a token in a given document is to scale down the impact of tokens that occur very frequently
-- LogisticRegression(): the model in question
+### Pipeline
+This pipeline has several components:
+ - Categorical Transformer: 
+	- Simple Imputer: set to fill in the missing values in the datasets
+	- One Hot Encoder:  represent categorical variables as numerical values in a machine learning model
+ - Numerical Transformer:
+	- Simple Imputer: set to fill in the missing values in the datasets
+	- Robust Scaler: scales the data, but ignores the outlier data points
+- Preprocessor:
+	- contains the Categorical and Numerical Transformer
 
-### Pipeline Three - XGBoost
-This pipeline has three components:
- - CountVectorizer(): Convert a collection of text documents to a matrix of token counts
- - TfidfTransformer(): The goal of using tf-idf instead of the raw frequencies of occurrence of a token in a given document is to scale down the impact of tokens that occur very frequently
-- XBGClassifier(): the model in question
+### Logistic Classification Model
+ - I created a second 'pipelinetwo' which is a copy of the previous pipeline
 
-Conclusion: Out of the three pipelines are models, the one that performed the best was the XGBoost model, with Logistic Regression close behind. Maybe with some parameter tuning the MultiNomial model could catch up in accuracy to the other two, but for now it remains the worse model. 
+### HyperParameter Tuning and Cross Validation 
+Even though these pipelines are performing well, we can always see if there is way to better these models. I used Randomized Search Cross Validation, which takes in parameters and plays mix and match until the best results are yielded.
+
+### Logistic Model Tuning (Same method as Logistic Model)
+I then recreated the above process using an Logstic Model instead of XGBoost model
+
+### Conclusion
+Both of these model perform pretty similiarly which I figured would happen when the orginal model performed so well with the test dataset. I just wanted to show the process if the original model had been terrible
