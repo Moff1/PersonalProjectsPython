@@ -1,5 +1,7 @@
 ### This project is showcasing the NLP model, and how it interacts with a dataset in additional data exploration
 
+### Actual Dataset should be able to be downloaded from Kaggle: https://www.kaggle.com/datasets/adarshsng/lending-club-loan-data-csv
+
 ### Import Packages
 
 ### Import Data
